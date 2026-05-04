@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — IPL Score Predictor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold:    #F5C518;
+      --amber:   #E8890C;
+      --pitch:   #1C2B0E;
+      --dark:    #080C04;
+      --panel:   #0E1409;
+      --glass:   rgba(255,255,255,0.03);
+      --border:  rgba(245,197,24,0.18);
+      --text-dim:#7A8A6A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── LEFT PANEL — visual identity ─────────────────────── */
+    .left-panel {
+      width: 52%;
+      position: relative;
+      background: var(--pitch);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    /* cricket pitch lines */
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          -55deg,
+          transparent,
+          transparent 38px,
+          rgba(255,255,255,0.025) 38px,
+          rgba(255,255,255,0.025) 40px
+        );
+    }
+
+    /* floodlight glow */
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 10%,  rgba(245,197,24,0.22) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 10%,  rgba(245,197,24,0.18) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 100%, rgba(28,43,14,0.9)    0%, transparent 60%);
+    }
+
+    .left-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .cricket-ball {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #c0392b, #7b0000);
+      box-shadow:
+        0 0 0 3px rgba(255,255,255,0.1),
+        0 20px 60px rgba(0,0,0,0.6),
+        0 0 80px rgba(192,57,43,0.3);
+      margin: 0 auto 2rem;
+      position: relative;
+      animation: floatBall 4s ease-in-out infinite;
+    }
+    /* seam lines on ball */
+    .cricket-ball::before,
+    .cricket-ball::after {
+      content: '';
+      position: absolute;
+      border: 2px solid rgba(255,200,200,0.25);
+      border-radius: 50%;
+    }
+    .cricket-ball::before {
+      width: 50%; height: 100%;
+      left: 25%; top: 0;
+      border-left: none; border-right: none;
+    }
+    .cricket-ball::after {
+      width: 100%; height: 50%;
+      top: 25%; left: 0;
+      border-top: none; border-bottom: none;
+    }
+
+    @keyframes floatBall {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50%       { transform: translateY(-14px) rotate(8deg); }
+    }
+
+    .brand-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.4rem;
+      letter-spacing: 6px;
+      color: #fff;
+      line-height: 1;
+      text-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    }
+
+    .brand-sub {
+      font-size: 0.78rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 8px;
+      margin-bottom: 3rem;
+    }
+
+    /* scoreboard widget */
+    .scoreboard {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 2rem;
+      backdrop-filter: blur(10px);
+    }
+    .scoreboard-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+    }
+    .score-item { text-align: center; }
+    .score-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .score-lbl {
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+    .score-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--border);
+    }
+
+    /* animated floodlight beams */
+    .beam {
+      position: absolute;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(245,197,24,0.25), transparent);
+      animation: sweep 8s ease-in-out infinite;
+      transform-origin: top center;
+    }
+    .beam:nth-child(1) { left: 10%; animation-delay: 0s; }
+    .beam:nth-child(2) { left: 90%; animation-delay: 2s; animation-direction: alternate-reverse; }
+    @keyframes sweep {
+      0%, 100% { transform: rotate(-8deg); opacity: 0.6; }
+      50%       { transform: rotate(8deg);  opacity: 1; }
+    }
+
+    /* ── RIGHT PANEL — form ────────────────────────────────── */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--panel);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle grid texture */
+    .right-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(245,197,24,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,197,24,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .form-wrapper {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .form-header {
+      margin-bottom: 2.5rem;
+    }
+    .form-header .eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .form-header h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.8rem;
+      letter-spacing: 3px;
+      color: #fff;
+      line-height: 1;
+    }
+    .form-header p {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      margin-top: 8px;
+    }
+
+    /* Input groups */
+    .field-group {
+      margin-bottom: 1.2rem;
+    }
+    .field-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .field-wrap {
+      position: relative;
+    }
+    .field-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      opacity: 0.5;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .field-group input {
+      width: 100%;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 14px 13px 42px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+    }
+    .field-group input::placeholder { color: #3a4a2a; }
+    .field-group input:focus {
+      border-color: var(--gold);
+      background: rgba(245,197,24,0.04);
+      box-shadow: 0 0 0 3px rgba(245,197,24,0.1);
+    }
+    .field-group input:focus + .field-icon,
+    .field-wrap:focus-within .field-icon { opacity: 1; }
+
+    /* show/hide password toggle */
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.2s;
+    }
+    .toggle-pw:hover { color: var(--gold); }
+
+    /* remember row */
+    .extras-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.6rem;
+    }
+    .custom-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.83rem;
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+    .custom-check input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+    .forgot-link {
+      font-size: 0.83rem;
+      color: var(--gold);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .forgot-link:hover { opacity: 0.7; color: var(--gold); }
+
+    /* submit button */
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--amber), var(--gold));
+      border: none;
+      border-radius: 8px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.25rem;
+      letter-spacing: 3px;
+      color: #000;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    .btn-login::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.3s;
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 35px rgba(245,197,24,0.45);
+    }
+    .btn-login:active { transform: translateY(0); }
+
+    /* divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 1.4rem 0;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      letter-spacing: 1px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* register link */
+    .switch-link {
+      text-align: center;
+      font-size: 0.87rem;
+      color: var(--text-dim);
+    }
+    .switch-link a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .switch-link a:hover { opacity: 0.7; }
+
+    /* error message */
+    .form-error {
+      background: rgba(220,53,69,0.12);
+      border: 1px solid rgba(220,53,69,0.35);
+      border-radius: 7px;
+      color: #ff7b7b;
+      font-size: 0.83rem;
+      padding: 10px 14px;
+      margin-bottom: 1.2rem;
+      display: none;
+    }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body { flex-direction: column; overflow: auto; }
+      .left-panel { width: 100%; min-height: 260px; padding: 2rem; }
+      .brand-title { font-size: 2.2rem; }
+      .scoreboard { padding: 1rem 1.2rem; }
+      .score-val { font-size: 1.6rem; }
+      .right-panel { padding: 2.5rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ LEFT PANEL ════════════ -->
+  <div class="left-panel">
+    <div class="beam"></div>
+    <div class="beam"></div>
+
+    <div class="left-content">
+      <div class="cricket-ball"></div>
+      <div class="brand-title">IPL SCORE<br/>PREDICTOR</div>
+      <div class="brand-sub">AI-Powered Cricket Analytics</div>
+
+      <div class="scoreboard">
+        <div class="scoreboard-row">
+          <div class="score-item">
+            <div class="score-val">8</div>
+            <div class="score-lbl">Teams</div>
+          </div>
+          <div class="score-divider"></div>
+          <div class="score-item">
+            <div class="score-val">76K+</div>
+            <div class="score-lbl">Rows Trained</div>
+          </div>
+          <div class="score-divider"></div>
+          <div class="score-item">
+            <div class="score-val">~80%</div>
+            <div class="score-lbl">Accuracy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ RIGHT PANEL ════════════ -->
+  <div class="right-panel">
+    <div class="form-wrapper">
+
+      <div class="form-header">
+        <div class="eyebrow">🏏 Welcome back</div>
+        <h2>SIGN IN</h2>
+        <p>Log in to access your IPL predictions dashboard.</p>
+      </div>
+
+      <div class="form-error" id="loginError"></div>
+
+      <!-- Email -->
+      <div class="field-group">
+        <label for="email">Email Address</label>
+        <div class="field-wrap">
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+          <span class="field-icon">✉️</span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <label for="password">Password</label>
+        <div class="field-wrap">
+          <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"/>
+          <span class="field-icon">🔒</span>
+          <button class="toggle-pw" type="button" onclick="togglePw('password', this)">Show</button>
+        </div>
+      </div>
+
+      <!-- Extras row -->
+      <div class="extras-row">
+        <label class="custom-check">
+          <input type="checkbox" id="remember"/>
+          Remember me
+        </label>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <!-- Submit -->
+      <button class="btn-login" onclick="handleLogin()">LOGIN →</button>
+
+      <div class="divider">or</div>
+
+      <div class="switch-link">
+        Don't have an account? <a href="register.html">Register now</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePw(id, btn) {
+      const input = document.getElementById(id);
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.textContent = show ? 'Hide' : 'Show';
+    }
+
+    function handleLogin() {
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errBox   = document.getElementById('loginError');
+      errBox.style.display = 'none';
+
+      if (!email) { showErr('⚠️ Please enter your email address.'); return; }
+      if (!/\S+@\S+\.\S+/.test(email)) { showErr('⚠️ Please enter a valid email.'); return; }
+      if (!password) { showErr('⚠️ Please enter your password.'); return; }
+
+      // ── Connect to your Flask login route here ──
+      // fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'},
+      //   body: JSON.stringify({ email, password }) })
+      //   .then(r => r.json()).then(d => { if(d.success) location.href='/'; else showErr(d.error); });
+
+      alert(`✅ Login submitted!\nEmail: ${email}\n\n(Connect to Flask backend to authenticate)`);
+    }
+
+    function showErr(msg) {
+      const e = document.getElementById('loginError');
+      e.textContent = msg;
+      e.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

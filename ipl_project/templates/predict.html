@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Predict Score — IPL Predictor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+  
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">🏏 IPL PREDICTOR</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto gap-3">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('predict_page') }}">Predict Score</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  
+  <div class="page-header">
+    <h1>Predict <span>Score</span></h1>
+    <p>Fill in the live match stats below to get an AI-powered final score prediction.</p>
+  </div>
+
+  
+  <div class="container py-5 px-3">
+    <div class="predict-card">
+
+      
+      <div class="section-label">🏟️ Team Selection</div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label for="bat_team">Batting Team</label>
+          <select class="form-select" id="bat_team">
+            <option value="" disabled selected>Select Batting Team</option>
+            {% for team in teams %}
+            <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label for="bowl_team">Bowling Team</label>
+          <select class="form-select" id="bowl_team">
+            <option value="" disabled selected>Select Bowling Team</option>
+            {% for team in teams %}
+            <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      
+      <div class="section-label">📊 Current Innings Stats</div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <label for="runs">Current Runs</label>
+          <input type="number" class="form-control" id="runs" placeholder="e.g. 120" min="0" max="400"/>
+          <div class="input-hint">Total runs scored so far</div>
+        </div>
+        <div class="col-md-4">
+          <label for="wickets">Wickets Lost</label>
+          <input type="number" class="form-control" id="wickets" placeholder="e.g. 3" min="0" max="10"/>
+          <div class="input-hint">Number of wickets fallen</div>
+        </div>
+        <div class="col-md-4">
+          <label for="overs">Overs Bowled</label>
+          <input type="number" class="form-control" id="overs" placeholder="e.g. 10.2" min="5" max="20" step="0.1"/>
+          <div class="input-hint">Min 5 overs (e.g. 10.2)</div>
+        </div>
+      </div>
+
+      
+      <div class="section-label">🔥 Last 5 Overs Performance</div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label for="runs_last_5">Runs in Last 5 Overs</label>
+          <input type="number" class="form-control" id="runs_last_5" placeholder="e.g. 45" min="0"/>
+          <div class="input-hint">Runs scored in the last 5 overs</div>
+        </div>
+        <div class="col-md-6">
+          <label for="wickets_last_5">Wickets in Last 5 Overs</label>
+          <input type="number" class="form-control" id="wickets_last_5" placeholder="e.g. 1" min="0" max="10"/>
+          <div class="input-hint">Wickets fallen in the last 5 overs</div>
+        </div>
+      </div>
+
+      
+      <button class="btn-submit" id="predictBtn" onclick="submitPrediction()">
+        🏏 PREDICT FINAL SCORE
+      </button>
+    </div>
+
+    
+    <div class="alert-error" id="errorMsg"></div>
+
+    <!-- Result -->
+    <div class="result-box" id="resultBox">
+      <div class="result-label">📍 Predicted Final Score</div>
+      <div class="score-range" id="scoreDisplay">— — —</div>
+      <div class="score-sub">Predicted score range based on current match stats</div>
+      <div class="teams-line" id="teamsDisplay"></div>
+    </div>
+  </div>
+
+  <!-- ── Footer ────────────────────────────────────────────── -->
+  <footer>
+    Built with <span>♥</span> using Python, scikit-learn &amp; Bootstrap &nbsp;|&nbsp; IPL Score Predictor &copy; 2024
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    async function submitPrediction() {
+      const errorMsg  = document.getElementById('errorMsg');
+      const resultBox = document.getElementById('resultBox');
+      const btn       = document.getElementById('predictBtn');
+
+      // Hide previous results
+      errorMsg.style.display  = 'none';
+      resultBox.style.display = 'none';
+
+      // Collect values
+      const bat_team       = document.getElementById('bat_team').value;
+      const bowl_team      = document.getElementById('bowl_team').value;
+      const runs           = document.getElementById('runs').value;
+      const wickets        = document.getElementById('wickets').value;
+      const overs          = document.getElementById('overs').value;
+      const runs_last_5    = document.getElementById('runs_last_5').value;
+      const wickets_last_5 = document.getElementById('wickets_last_5').value;
+
+      // ── Client-side validation ──────────────────────────────
+      if (!bat_team)  { showError('⚠️ Please select a Batting Team.'); return; }
+      if (!bowl_team) { showError('⚠️ Please select a Bowling Team.'); return; }
+      if (bat_team === bowl_team) {
+        showError('⚠️ Batting and Bowling team cannot be the same!'); return;
+      }
+      if (runs === '')           { showError('⚠️ Please enter Current Runs.'); return; }
+      if (wickets === '')        { showError('⚠️ Please enter Wickets Lost.'); return; }
+      if (overs === '')          { showError('⚠️ Please enter Overs Bowled.'); return; }
+      if (runs_last_5 === '')    { showError('⚠️ Please enter Runs in Last 5 Overs.'); return; }
+      if (wickets_last_5 === '') { showError('⚠️ Please enter Wickets in Last 5 Overs.'); return; }
+
+      // ── Loading state ───────────────────────────────────────
+      btn.disabled    = true;
+      btn.innerHTML   = `<span class="spinner-border spinner-border-sm me-2"></span> Predicting...`;
+
+      try {
+        // ── POST to Flask backend ─────────────────────────────
+        const response = await fetch('/api/predict', {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify({
+            bat_team,
+            bowl_team,
+            runs           : parseFloat(runs),
+            wickets        : parseFloat(wickets),
+            overs          : parseFloat(overs),
+            runs_last_5    : parseFloat(runs_last_5),
+            wickets_last_5 : parseFloat(wickets_last_5)
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Show result
+          document.getElementById('scoreDisplay').textContent =
+            `${data.score_min}  –  ${data.score_max}`;
+          document.getElementById('teamsDisplay').textContent =
+            `${bat_team}  vs  ${bowl_team}`;
+          resultBox.style.display = 'block';
+          resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          showError('❌ ' + (data.error || 'Prediction failed. Please try again.'));
+        }
+
+      } catch (err) {
+        showError('❌ Could not connect to the server. Make sure Flask is running.');
+      } finally {
+        btn.disabled  = false;
+        btn.innerHTML = '🏏 PREDICT FINAL SCORE';
+      }
+    }
+
+    function showError(msg) {
+      const e = document.getElementById('errorMsg');
+      e.textContent    = msg;
+      e.style.display  = 'block';
+      e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  </script>
+</body>
+</html>

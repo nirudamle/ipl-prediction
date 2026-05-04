@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IPL Score Predictor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+  <!-- ── Navbar ────────────────────────────────────────────── -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">🏏 IPL PREDICTOR</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto gap-3">
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('home') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('predict_page') }}">Predict Score</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Hero ──────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-content px-3">
+      <div class="hero-badge">AI-Powered Cricket Analytics</div>
+      <h1>IPL Score<br/><span>Predictor</span></h1>
+      <p>Powered by Machine Learning. Enter live match stats and get an accurate score prediction in seconds.</p>
+      <a href="{{ url_for('predict_page') }}" class="btn-gold">🏏 Predict Now</a>
+    </div>
+  </section>
+
+  <!-- ── Stats Strip ────────────────────────────────────────── -->
+  <div class="stats-strip">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-6 col-md-3 stat-item">
+          <div class="stat-num">8</div>
+          <div class="stat-label">IPL Teams</div>
+        </div>
+        <div class="col-6 col-md-3 stat-item">
+          <div class="stat-num">76K+</div>
+          <div class="stat-label">Rows Trained</div>
+        </div>
+        <div class="col-6 col-md-3 stat-item mt-3 mt-md-0">
+          <div class="stat-num">~80%</div>
+          <div class="stat-label">Model Accuracy</div>
+        </div>
+        <div class="col-6 col-md-3 stat-item mt-3 mt-md-0">
+          <div class="stat-num">Linear</div>
+          <div class="stat-label">Algorithm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── How It Works ──────────────────────────────────────── -->
+  <section class="py-5 px-3">
+    <div class="container">
+      <h2 class="section-title text-center mb-2">How It <span>Works</span></h2>
+      <p class="text-center mb-5" style="color:var(--text-muted)">Three simple steps to predict the final score</p>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="ipl-card">
+            <div class="feature-icon">📋</div>
+            <h5>Step 1 — Enter Match Info</h5>
+            <p>Select the batting and bowling teams from the 8 IPL franchises supported by the model.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="ipl-card">
+            <div class="feature-icon">📊</div>
+            <h5>Step 2 — Add Live Stats</h5>
+            <p>Provide current runs, wickets, overs, and the last 5 overs performance for both metrics.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="ipl-card">
+            <div class="feature-icon">🤖</div>
+            <h5>Step 3 — Get Prediction</h5>
+            <p>Our Linear Regression model instantly predicts the final score range with ±5 / +10 bounds.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Supported Teams ────────────────────────────────────── -->
+  <section class="teams-section py-5 px-3">
+    <div class="container">
+      <h2 class="section-title text-center mb-2">Supported <span>Teams</span></h2>
+      <p class="text-center mb-5" style="color:var(--text-muted)">8 consistent IPL franchises used in the model</p>
+      <div class="row g-3 justify-content-center">
+        <div class="col-6 col-md-3"><div class="team-badge">🟡 Chennai Super Kings</div></div>
+        <div class="col-6 col-md-3"><div class="team-badge">🔵 Delhi Daredevils</div></div>
+        <div class="col-6 col-md-3"><div class="team-badge">🔴 Kings XI Punjab</div></div>
+        <div class="col-6 col-md-3"><div class="team-badge">💜 Kolkata Knight Riders</div></div>
+        <div class="col-6 col-md-3"><div class="team-badge">🔵 Mumbai Indians</div></div>
+        <div class="col-6 col-md-3"><div class="team-badge">🩵 Rajasthan Royals</div></div>
+        <div class="col-6 col-md-3"><div class="team-badge">🔴 Royal Challengers Bangalore</div></div>
+        <div class="col-6 col-md-3"><div class="team-badge">🟠 Sunrisers Hyderabad</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ───────────────────────────────────────────────── -->
+  <section class="cta-section py-5 text-center px-3">
+    <div class="container">
+      <h2 class="section-title mb-3">Ready to <span>Predict?</span></h2>
+      <p class="mb-4" style="color:var(--text-muted)">Enter the current match situation and let the model do the work.</p>
+      <a href="{{ url_for('predict_page') }}" class="btn-gold">Go to Predict Page →</a>
+    </div>
+  </section>
+
+  <!-- ── Footer ────────────────────────────────────────────── -->
+  <footer>
+    Built with <span>♥</span> using Python, scikit-learn &amp; Bootstrap &nbsp;|&nbsp; IPL Score Predictor &copy; 2024
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
